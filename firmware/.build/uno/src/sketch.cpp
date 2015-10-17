@@ -8,12 +8,14 @@ void BlinkLed(int value);
 #define VOLUME_SENSOR 0
 
 // LED点滅のタイミング。周期。 
-int time_interval_table[11] = {
-  5,10,30,50,100,200,300,500,1000
+// 20 -> 30 hz
+float time_interval_table[] = {
+  25000, 23809, 22727, 21739, 20833,
+  20000, 19230, 18518, 17857, 17241, 16666
 };
 
 boolean led_state = LOW;
-unsigned long previous_millis = 0;
+unsigned long previous_micros = 0;
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -21,18 +23,19 @@ void setup() {
 }
 
 void loop() {
+
   int raw = analogRead(VOLUME_SENSOR);
-  int comverted_value = map(raw, 0, 1024, 0, 8);
+  int comverted_value = map(raw, 0, 1024, 0, 10);
   Serial.println(comverted_value);
   BlinkLed(comverted_value);
 }
 
 void BlinkLed(int value) {
-  long interval = time_interval_table[value];
-  unsigned long current_millis = millis();
+  unsigned long interval = time_interval_table[value];
+  unsigned long current_micros = micros();
 
-  if(current_millis - previous_millis >= interval) {
-    previous_millis = current_millis;
+  if(current_micros - previous_micros >= interval) {
+    previous_micros = current_micros;
 
     if(led_state == LOW) {
       led_state = HIGH;
